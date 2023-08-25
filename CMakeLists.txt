@@ -7,6 +7,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
 include(Tools)
 
+message(STATUS "CMAKE_SOURCE_DIR: ${CMAKE_MODULE_PATH}")
+
+add_clang_format_target()
+
 add_executable(MANA main.cpp)
 
 add_clang_tidy_to_target(MANA)
