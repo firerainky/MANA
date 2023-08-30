@@ -9,3 +9,8 @@ TEST(CreateObj, ObjPointerIsNotNullWhenDecalred) {
     A *a;
     EXPECT_NE(a, nullptr);
 }
+
+TEST(CreateObj, InitArrayWithAuto) {
+    std::array arr{1, 2, 3};
+    EXPECT_EQ(arr.size(), 3);
+}
