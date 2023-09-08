@@ -26,5 +26,6 @@ FetchContent_MakeAvailable(googletest)
 add_library(GTest::GTest INTERFACE IMPORTED)
 target_link_libraries(GTest::GTest INTERFACE gtest_main)
 
+add_subdirectory(src)
 add_subdirectory(test)
 add_subdirectory(memory_pool)

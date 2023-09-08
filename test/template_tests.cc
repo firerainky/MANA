@@ -1,3 +1,4 @@
+#include "hero.h"
 #include <gtest/gtest.h>
 
 // Function template
@@ -21,4 +22,8 @@ TEST(TemplateTests, SimplestTemplates) {
     // Class template
     A<int> a(1);
     A<double> b(1.0);
+
+    // If the class implementation is in a separate file, we need to explicitly instantiate it with `template class`.
+    Hero<int> hero;
+    hero.superpower();
 }
