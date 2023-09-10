@@ -42,7 +42,9 @@ inline uint64_t rdtsc() {
     return result;
 #else
     auto now = std::chrono::steady_clock::now();
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+                   now.time_since_epoch())
+            .count();
 #endif
 }
 

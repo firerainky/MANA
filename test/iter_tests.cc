@@ -6,7 +6,9 @@ namespace mana {
         std::vector<int> v = {1, 2, 3, 4, 5};
         for (auto e: v) { std::cout << e << std::endl; }
 
-        for (auto iter = v.begin(); iter != v.end(); ++iter) { std::cout << *iter << std::endl; }
+        for (auto iter = v.begin(); iter != v.end(); ++iter) {
+            std::cout << *iter << std::endl;
+        }
     }
 
     TEST(Iterators, AdvanceTest) {
