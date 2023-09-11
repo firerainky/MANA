@@ -1,6 +1,8 @@
-#include <cuda_runtime.h>
 #include <stdio.h>
+__global__ void hello_world(void) { printf("GPU: Hello world!\n"); }
 
-__global__ void cuda_hello() { printf("Hello world from GPU\n"); }
-
-int main() { cuda_hello<<<1, 1>>>(); }
+int main(int argc, char **argv) {
+    printf("CPU: Hello world!\n");
+    hello_world<<<1, 10>>>();
+    return 0;
+}
