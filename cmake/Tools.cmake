@@ -54,11 +54,15 @@ function(add_clang_format_target)
     file(GLOB_RECURSE CMAKE_FILES_CPP "*/*.cpp")
     file(GLOB_RECURSE CMAKE_FILES_H "*/*.h")
     file(GLOB_RECURSE CMAKE_FILES_HPP "*/*.hpp")
+    file(GLOB_RECURSE CMAKE_FILES_CUDA "*/*.cu")
+    file(GLOB_RECURSE CMAKE_FILES_CUDAH "*/*.cuh")
     set(CPP_FILES
         ${CMAKE_FILES_CC}
         ${CMAKE_FILES_CPP}
         ${CMAKE_FILES_H}
-        ${CMAKE_FILES_HPP})
+        ${CMAKE_FILES_HPP}
+        ${CMAKE_FILES_CUDA}
+        ${CMAKE_FILES_CUDAH})
     list(
         FILTER
         CPP_FILES
