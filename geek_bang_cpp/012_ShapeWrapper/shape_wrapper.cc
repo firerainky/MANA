@@ -1,6 +1,8 @@
 #include <stdexcept>
 #include <stdio.h>
 
+// These code is from: https://time.geekbang.org/column/article/169225
+
 enum class shape_type {
     Circle,
     Triangle,
@@ -51,4 +53,14 @@ private:
 
 void foo() { ShapeWrapper ptr_wrapper(create_shape(shape_type::Circle)); }
 
-int main() { foo(); }
+int main() {
+    // The rect destructor is not called when the program ends.
+    // This is a memory leak caused by "object slicing"
+    Shape *rect = create_shape(shape_type::Rectangle);
+
+    // Using ShapeWrapper will not cause such problem
+    // because ShapeWrapper is not allocated on heap but allocated on stack.
+    // Then RAII is working to call destructor of Shape
+    ShapeWrapper ptr_wrapper(create_shape(shape_type::Triangle));
+    foo();
+}
