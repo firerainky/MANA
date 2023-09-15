@@ -20,7 +20,7 @@ public:
     explicit smart_ptr(T *ptr = nullptr) : ptr_(ptr) {}
     ~smart_ptr() { delete ptr_; }
 
-    // Disable copy constructor and assign operator
+    // Disable copy constructor and copy-assignment operator
     // smart_ptr(const smart_ptr &) = delete;
     // smart_ptr &operator=(const smart_ptr &) = delete;
 
