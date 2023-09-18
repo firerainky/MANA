@@ -49,6 +49,7 @@ public:
     // Move copy constructor
     template<typename U>
     smart_ptr(smart_ptr<U> &&other) noexcept {
+        puts("We are using the move copy constructor");
         ptr_ = other.ptr_;
         if (ptr_) {
             shared_count_ = other.shared_count_;
@@ -68,6 +69,7 @@ public:
 
     // copy assignment operator
     smart_ptr &operator=(smart_ptr rhs) noexcept {
+        puts("We are using the copy assignment operator");
         rhs.swap(*this);
         return *this;
     }
@@ -135,4 +137,9 @@ int main() {
     if (ptr1) { puts("ptr1 is not empty"); }
     smart_ptr<Circle> ptr3 = dynamic_pointer_cast<Circle>(ptr2);
     printf("use count of ptr3 is %ld\n", ptr3.use_count());
+
+    // If the right side of the operator is a pure rvalue,
+    // the operator= is using the move copy constructor.
+    smart_ptr<Shape> ptr4 = smart_ptr<Rectangle>(new Rectangle());
+    printf("use count of ptr4 is %ld\n", ptr4.use_count());
 }
