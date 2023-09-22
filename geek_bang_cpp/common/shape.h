@@ -46,4 +46,16 @@ inline Shape *create_shape(shape_type type) {
     throw std::logic_error("shape type is invalid");
 }
 
+class Result {
+public:
+    Result() { puts("Result::Result()"); }
+    ~Result() { puts("~Result::Result()"); }
+    inline void doSomething() { puts("Result::doSomething()"); }
+};
+
+inline Result process_shape(const Shape &shape1, const Shape &shape2) {
+    puts("process_shape()");
+    return Result();
+}
+
 #endif

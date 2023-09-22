@@ -87,15 +87,15 @@ public:
     T *operator->() const noexcept { return ptr_; }
     operator bool() const noexcept { return ptr_; }
 
-private:
-    T *ptr_;
-    shared_count *shared_count_;
-
     void swap(smart_ptr &rhs) noexcept {
         using std::swap;
         swap(ptr_, rhs.ptr_);
         swap(shared_count_, rhs.shared_count_);
     }
+
+private:
+    T *ptr_;
+    shared_count *shared_count_;
 };
 
 template<typename T>
