@@ -25,8 +25,9 @@ html/
 # Precompiled Headers
 *.gch
 *.pch
-# Compiled Dynamic libraries
+# Compiled Dynamic libraries but include libcrypto.so
 *.so
+!libcrypto.so
 *.dylib
 *.dll
 # Fortran module files
