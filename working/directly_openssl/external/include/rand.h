@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2022 The OpenSSL Project Authors. All Rights Reserved.
+ * Copyright 1995-2021 The OpenSSL Project Authors. All Rights Reserved.
  *
  * Licensed under the Apache License 2.0 (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
@@ -7,123 +7,117 @@
  * https://www.openssl.org/source/license.html
  */
 
-/*
- * Licensed under the Apache License 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * https://www.openssl.org/source/license.html
- * or in the file LICENSE in the source distribution.
- */
-
-#ifndef OSSL_CRYPTO_RAND_H
-# define OSSL_CRYPTO_RAND_H
+#ifndef OPENSSL_RAND_H
+# define OPENSSL_RAND_H
 # pragma once
 
-# include <openssl/rand.h>
-# include "crypto/rand_pool.h"
-
-# if defined(__APPLE__) && !defined(OPENSSL_NO_APPLE_CRYPTO_RANDOM)
-#  include <Availability.h>
-#  if (defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED >= 101200) || \
-     (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 80000)
-#   define OPENSSL_APPLE_CRYPTO_RANDOM 1
-#   include <CommonCrypto/CommonCryptoError.h>
-#   include <CommonCrypto/CommonRandom.h>
-#  endif
+# include <openssl/macros.h>
+# ifndef OPENSSL_NO_DEPRECATED_3_0
+#  define HEADER_RAND_H
 # endif
 
-/*
- * Defines related to seed sources
- */
-#ifndef DEVRANDOM
-/*
- * set this to a comma-separated list of 'random' device files to try out. By
- * default, we will try to read at least one of these files
- */
-# define DEVRANDOM "/dev/urandom", "/dev/random", "/dev/hwrng", "/dev/srandom"
-# if defined(__linux) && !defined(__ANDROID__)
-#  ifndef DEVRANDOM_WAIT
-#   define DEVRANDOM_WAIT   "/dev/random"
-#  endif
-/*
- * Linux kernels 4.8 and later changes how their random device works and there
- * is no reliable way to tell that /dev/urandom has been seeded -- getentropy(2)
- * should be used instead.
- */
-#  ifndef DEVRANDOM_SAFE_KERNEL
-#   define DEVRANDOM_SAFE_KERNEL        4, 8
-#  endif
-/*
- * Some operating systems do not permit select(2) on their random devices,
- * defining this to zero will force the use of read(2) to extract one byte
- * from /dev/random.
- */
-#  ifndef DEVRANDM_WAIT_USE_SELECT
-#   define DEVRANDM_WAIT_USE_SELECT     1
-#  endif
-/*
- * Define the shared memory identifier used to indicate if the operating
- * system has properly seeded the DEVRANDOM source.
- */
-#  ifndef OPENSSL_RAND_SEED_DEVRANDOM_SHM_ID
-#   define OPENSSL_RAND_SEED_DEVRANDOM_SHM_ID 114
-#  endif
+# include <stdlib.h>
+# include <openssl/types.h>
+# include <openssl/e_os2.h>
+# include <openssl/randerr.h>
+# include <openssl/evp.h>
 
-# endif
+#ifdef  __cplusplus
+extern "C" {
 #endif
 
-#if !defined(OPENSSL_NO_EGD) && !defined(DEVRANDOM_EGD)
 /*
- * set this to a comma-separated list of 'egd' sockets to try out. These
- * sockets will be tried in the order listed in case accessing the device
- * files listed in DEVRANDOM did not return enough randomness.
- */
-# define DEVRANDOM_EGD "/var/run/egd-pool", "/dev/egd-pool", "/etc/egd-pool", "/etc/entropy"
-#endif
-
-void ossl_rand_cleanup_int(void);
-
-/*
- * Initialise the random pool reseeding sources.
+ * Default security strength (in the sense of [NIST SP 800-90Ar1])
  *
- * Returns 1 on success and 0 on failure.
+ * NIST SP 800-90Ar1 supports the strength of the DRBG being smaller than that
+ * of the cipher by collecting less entropy. The current DRBG implementation
+ * does not take RAND_DRBG_STRENGTH into account and sets the strength of the
+ * DRBG to that of the cipher.
  */
-int ossl_rand_pool_init(void);
+# define RAND_DRBG_STRENGTH             256
+
+# ifndef OPENSSL_NO_DEPRECATED_3_0
+struct rand_meth_st {
+    int (*seed) (const void *buf, int num);
+    int (*bytes) (unsigned char *buf, int num);
+    void (*cleanup) (void);
+    int (*add) (const void *buf, int num, double randomness);
+    int (*pseudorand) (unsigned char *buf, int num);
+    int (*status) (void);
+};
+
+OSSL_DEPRECATEDIN_3_0 int RAND_set_rand_method(const RAND_METHOD *meth);
+OSSL_DEPRECATEDIN_3_0 const RAND_METHOD *RAND_get_rand_method(void);
+#  ifndef OPENSSL_NO_ENGINE
+OSSL_DEPRECATEDIN_3_0 int RAND_set_rand_engine(ENGINE *engine);
+#  endif
+
+OSSL_DEPRECATEDIN_3_0 RAND_METHOD *RAND_OpenSSL(void);
+# endif /* OPENSSL_NO_DEPRECATED_3_0 */
+
+# ifndef OPENSSL_NO_DEPRECATED_1_1_0
+#   define RAND_cleanup() while(0) continue
+# endif
+int RAND_bytes(unsigned char *buf, int num);
+int RAND_priv_bytes(unsigned char *buf, int num);
 
 /*
- * Finalise the random pool reseeding sources.
+ * Equivalent of RAND_priv_bytes() but additionally taking an OSSL_LIB_CTX and
+ * a strength.
  */
-void ossl_rand_pool_cleanup(void);
+int RAND_priv_bytes_ex(OSSL_LIB_CTX *ctx, unsigned char *buf, size_t num,
+                       unsigned int strength);
 
 /*
- * Control the random pool use of open file descriptors.
+ * Equivalent of RAND_bytes() but additionally taking an OSSL_LIB_CTX and
+ * a strength.
  */
-void ossl_rand_pool_keep_random_devices_open(int keep);
+int RAND_bytes_ex(OSSL_LIB_CTX *ctx, unsigned char *buf, size_t num,
+                  unsigned int strength);
 
-/*
- * Configuration
- */
-void ossl_random_add_conf_module(void);
+# ifndef OPENSSL_NO_DEPRECATED_1_1_0
+OSSL_DEPRECATEDIN_1_1_0 int RAND_pseudo_bytes(unsigned char *buf, int num);
+# endif
 
-/*
- * Get and cleanup random seed material.
- */
-size_t ossl_rand_get_entropy(ossl_unused const OSSL_CORE_HANDLE *handle,
-                             unsigned char **pout, int entropy,
-                             size_t min_len, size_t max_len);
-void ossl_rand_cleanup_entropy(ossl_unused const OSSL_CORE_HANDLE *handle,
-                               unsigned char *buf, size_t len);
-size_t ossl_rand_get_nonce(ossl_unused const OSSL_CORE_HANDLE *handle,
-                           unsigned char **pout, size_t min_len, size_t max_len,
-                           const void *salt, size_t salt_len);
-void ossl_rand_cleanup_nonce(ossl_unused const OSSL_CORE_HANDLE *handle,
-                             unsigned char *buf, size_t len);
+EVP_RAND_CTX *RAND_get0_primary(OSSL_LIB_CTX *ctx);
+EVP_RAND_CTX *RAND_get0_public(OSSL_LIB_CTX *ctx);
+EVP_RAND_CTX *RAND_get0_private(OSSL_LIB_CTX *ctx);
 
-/*
- * Get seeding material from the operating system sources.
- */
-size_t ossl_pool_acquire_entropy(RAND_POOL *pool);
-int ossl_pool_add_nonce_data(RAND_POOL *pool);
+int RAND_set_DRBG_type(OSSL_LIB_CTX *ctx, const char *drbg, const char *propq,
+                       const char *cipher, const char *digest);
+int RAND_set_seed_source_type(OSSL_LIB_CTX *ctx, const char *seed,
+                              const char *propq);
 
-void ossl_rand_ctx_free(void *vdgbl);
+void RAND_seed(const void *buf, int num);
+void RAND_keep_random_devices_open(int keep);
+
+# if defined(__ANDROID__) && defined(__NDK_FPABI__)
+__NDK_FPABI__   /* __attribute__((pcs("aapcs"))) on ARM */
+# endif
+void RAND_add(const void *buf, int num, double randomness);
+int RAND_load_file(const char *file, long max_bytes);
+int RAND_write_file(const char *file);
+const char *RAND_file_name(char *file, size_t num);
+int RAND_status(void);
+
+# ifndef OPENSSL_NO_EGD
+int RAND_query_egd_bytes(const char *path, unsigned char *buf, int bytes);
+int RAND_egd(const char *path);
+int RAND_egd_bytes(const char *path, int bytes);
+# endif
+
+int RAND_poll(void);
+
+# if defined(_WIN32) && (defined(BASETYPES) || defined(_WINDEF_H))
+/* application has to include <windows.h> in order to use these */
+#  ifndef OPENSSL_NO_DEPRECATED_1_1_0
+OSSL_DEPRECATEDIN_1_1_0 void RAND_screen(void);
+OSSL_DEPRECATEDIN_1_1_0 int RAND_event(UINT, WPARAM, LPARAM);
+#  endif
+# endif
+
+#ifdef  __cplusplus
+}
+#endif
+
 #endif
